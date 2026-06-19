@@ -1,6 +1,10 @@
+<p align="center"><img src="web/public/logo.png" width="128" alt="Jaga"></p>
+
 # Jaga 🛡️
 
 **Hasil yield PLP, dikurangi asuransi crash — dalam satu token.**
+
+🔗 **Live demo:** https://jaga-eta.vercel.app · **Repo:** https://github.com/PugarHuda/jaga
 
 Jaga adalah vault otomatis di atas **DeepBook Predict** (protokol prediksi/opsi ber-volatility-surface di Sui). Vault menyetor dUSDC ke pool LP Predict untuk memanen **yield PLP**, dan secara bersamaan membeli **opsi binary OTM** sebagai **asuransi crash** yang membayar justru saat PLP rugi. Hasilnya: yield LP dengan **drawdown ekor yang dibatasi**, dibungkus sebagai **share token composable** yang auto-roll tiap expiry.
 

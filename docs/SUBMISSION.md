@@ -81,7 +81,8 @@ pre-run with the tx ready to open on suiscan if timing is tight.
 - [ ] Project name: **Jaga**
 - [ ] Track: **DeepBook Predict**
 - [ ] Tagline (§1), Description (§2)
-- [ ] Repo URL (public) + Package ID `0x2305…c714`
+- [x] Repo URL (public): https://github.com/PugarHuda/jaga + Package ID `0x2305…c714`
+- [x] Live dashboard: https://jaga-eta.vercel.app (Vercel, production)
 - [ ] Demo video (YouTube, ≤5 min)
 - [ ] Testnet proof link → `docs/PROOF.md`
 - [ ] Team ≥2 registered; ≥1 KYC; student profiles for University Award
