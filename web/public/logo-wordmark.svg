@@ -1,0 +1,30 @@
+<svg width="960" height="320" viewBox="0 0 960 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Jaga">
+  <defs>
+    <linearGradient id="shieldW" x1="160" y1="56" x2="160" y2="264" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f81f7"/>
+      <stop offset="1" stop-color="#1f5fc0"/>
+    </linearGradient>
+    <clipPath id="shieldClipW">
+      <path d="M160 60 L244 91 V166 C244 213 207 244 160 262 C113 244 76 213 76 166 V91 Z"/>
+    </clipPath>
+  </defs>
+
+  <rect width="960" height="320" rx="40" fill="#0d1117"/>
+
+  <!-- icon -->
+  <path d="M160 60 L244 91 V166 C244 213 207 244 160 262 C113 244 76 213 76 166 V91 Z"
+        fill="url(#shieldW)" opacity="0.16"/>
+  <path d="M160 60 L244 91 V166 C244 213 207 244 160 262 C113 244 76 213 76 166 V91 Z"
+        fill="none" stroke="url(#shieldW)" stroke-width="9" stroke-linejoin="round"/>
+  <g clip-path="url(#shieldClipW)">
+    <rect x="155" y="91" width="8" height="26" rx="4" fill="#3fb950"/>
+    <rect x="140" y="115" width="38" height="28" rx="7" fill="#3fb950"/>
+    <rect x="155" y="143" width="8" height="76" rx="4" fill="#f85149"/>
+    <rect x="140" y="153" width="38" height="46" rx="7" fill="#f85149"/>
+    <path d="M159 240 L144 214 H174 Z" fill="#f85149" opacity="0.85"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="300" y="170" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="120" font-weight="700" fill="#e6edf3">Jaga</text>
+  <text x="304" y="220" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="30" font-weight="500" fill="#8b949e">PLP yield minus crash insurance</text>
+</svg>

@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.local
+**/build/
+sim/out/
+contracts/*.out.json
+*.keystore
+.next/
+
+# Local tooling / secrets — NEVER commit (contains private keys)
+.claude/
+*.key
+*.mnemonic

@@ -1,0 +1,23 @@
+[package]
+name = "jaga"
+edition = "2024"
+# license = "MIT"
+
+[dependencies]
+# Sui framework (testnet). Pin rev sesuai jaringan saat publish.
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/testnet", override = true }
+MoveStdlib = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/move-stdlib", rev = "framework/testnet", override = true }
+
+# DeepBook Predict — WAJIB branch predict-testnet-4-16 (bukan main).
+# Package "deepbook_predict" ada di packages/predict; transitively menarik packages/deepbook.
+deepbook_predict = { git = "https://github.com/MystenLabs/deepbookv3.git", subdir = "packages/predict", rev = "predict-testnet-4-16" }
+
+# Quote asset testnet (dUSDC) — diperlukan karena type param Quote = dusdc::dusdc::DUSDC.
+dusdc = { git = "https://github.com/MystenLabs/deepbookv3.git", subdir = "packages/dusdc", rev = "predict-testnet-4-16" }
+
+# OpenZeppelin Move math (mul_div, checked_*). Via Move Registry:
+#   mvr add @openzeppelin-move/integer-math
+# openzeppelin_math = { r.mvr = "@openzeppelin-move/integer-math" }
+
+[addresses]
+jaga = "0x0"

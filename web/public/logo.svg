@@ -1,0 +1,37 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Jaga logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0d1117"/>
+      <stop offset="1" stop-color="#0a0d12"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="256" y1="96" x2="256" y2="432" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f81f7"/>
+      <stop offset="1" stop-color="#1f5fc0"/>
+    </linearGradient>
+    <clipPath id="shieldClip">
+      <path d="M256 100 L392 150 V272 C392 348 332 398 256 428 C180 398 120 348 120 272 V150 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- dark rounded square background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- shield body -->
+  <path d="M256 100 L392 150 V272 C392 348 332 398 256 428 C180 398 120 348 120 272 V150 Z"
+        fill="url(#shield)" opacity="0.16"/>
+  <path d="M256 100 L392 150 V272 C392 348 332 398 256 428 C180 398 120 348 120 272 V150 Z"
+        fill="none" stroke="url(#shield)" stroke-width="14" stroke-linejoin="round"/>
+
+  <!-- downward candlestick "caught" inside the shield -->
+  <g clip-path="url(#shieldClip)">
+    <!-- upper wick -->
+    <rect x="250" y="150" width="12" height="40" rx="6" fill="#3fb950"/>
+    <!-- a green calm candle (the yield) -->
+    <rect x="226" y="188" width="60" height="44" rx="10" fill="#3fb950"/>
+    <!-- the crash: a long red down candle, caught by the shield -->
+    <rect x="250" y="232" width="12" height="120" rx="6" fill="#f85149"/>
+    <rect x="226" y="248" width="60" height="74" rx="10" fill="#f85149"/>
+    <!-- arrow tip of the crash, blunted at the shield's base -->
+    <path d="M256 392 L232 352 H280 Z" fill="#f85149" opacity="0.85"/>
+  </g>
+</svg>
