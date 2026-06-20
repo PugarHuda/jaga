@@ -9,6 +9,7 @@ const deployed = CFG.vault !== '0x0';
 const SHARE_TYPE = `${CFG.pkg}::share::SHARE`;
 const pct = (x: number) => (x * 100).toFixed(1) + '%';
 const REPO = 'https://github.com/PugarHuda/jaga';
+const TEAL = '#0ea5a4';
 
 export default function Page() {
   const acct = useCurrentAccount();
@@ -27,8 +28,8 @@ export default function Page() {
 
   const refetchAll = () => { vaultQ.refetch(); dusdcQ.refetch(); shareQ.refetch(); };
   const onResult = (label: string) => ({
-    onSuccess: (r: { digest: string }) => { setTx({ kind: 'ok', msg: `${label} terkirim — digest ${r.digest.slice(0, 14)}…` }); setTimeout(refetchAll, 1500); },
-    onError: (e: Error) => setTx({ kind: 'err', msg: `${label} gagal: ${e.message}` }),
+    onSuccess: (r: { digest: string }) => { setTx({ kind: 'ok', msg: `${label} sent — digest ${r.digest.slice(0, 14)}…` }); setTimeout(refetchAll, 1500); },
+    onError: (e: Error) => setTx({ kind: 'err', msg: `${label} failed: ${e.message}` }),
   });
   const deposit = () => {
     if (!acct || !firstDusdc) return; setTx(null);
@@ -39,7 +40,7 @@ export default function Page() {
     signExec({ transaction: buildWithdraw(acct.address, firstShare.coinObjectId) as any }, onResult('Withdraw'));
   };
 
-  const tailImprove = simStats.plp.cvar1 - simStats.jaga.cvar1; // positif = membaik
+  const tailImprove = simStats.plp.cvar1 - simStats.jaga.cvar1; // positive = better
   const yieldGiveup = simStats.plp.mean - simStats.jaga.mean;
 
   return (
@@ -49,9 +50,10 @@ export default function Page() {
         <div className="container nav-inner">
           <a className="brand" href="#top"><img src="/logo.png" alt="" />Jaga</a>
           <div className="nav-links">
-            <a href="#how">Cara kerja</a>
-            <a href="#sim">Simulasi</a>
+            <a href="#how">How it works</a>
+            <a href="#sim">Simulation</a>
             <a href="#app">Vault</a>
+            <a href="#roadmap">Roadmap</a>
             <a href={REPO} target="_blank" rel="noreferrer">GitHub</a>
           </div>
           <ConnectButton connectText="Connect Wallet" />
@@ -60,84 +62,84 @@ export default function Page() {
 
       {/* ---------- HERO ---------- */}
       <header id="top" className="container hero">
-        <span className="badge">🛡️ Sui Overflow 2026 · Track DeepBook Predict</span>
-        <h1>Yield PLP, <span className="accent">tanpa risiko crash.</span></h1>
+        <span className="badge">🛡️ Sui Overflow 2026 · DeepBook Predict track</span>
+        <h1>PLP yield, <span className="accent">minus the crash.</span></h1>
         <p className="sub">
-          Vault otomatis di DeepBook Predict yang memanen yield PLP sambil membeli asuransi crash
-          (opsi binary OTM). Satu token <b>jSHARE</b> yang composable, hedge di-roll otomatis tiap expiry.
+          An automated vault on DeepBook Predict that earns PLP yield while buying crash insurance
+          (OTM binary puts). One composable <b>jSHARE</b> token; the hedge auto-rolls every expiry.
         </p>
         <div className="hero-cta">
-          <a className="btn btn-primary" href="#app">Buka Vault →</a>
-          <a className="btn btn-ghost" href={REPO} target="_blank" rel="noreferrer">★ Lihat di GitHub</a>
+          <a className="btn btn-primary" href="#app">Open the Vault →</a>
+          <a className="btn btn-ghost" href={REPO} target="_blank" rel="noreferrer">★ View on GitHub</a>
         </div>
         <div className="chips">
-          <span className="chip"><span className="dot" /> Live di Sui testnet</span>
+          <span className="chip"><span className="dot" /> Live on Sui testnet</span>
           <span className="chip">NAV <b>{v ? v.nav.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' dUSDC' : '—'}</b></span>
           <span className="chip">Hedge ratio <b>{v ? (v.hedgeRatioBps / 100).toFixed(2) + '%' : '—'}</b></span>
-          <span className="chip">CVaR-1% membaik <b>+{(tailImprove * 100).toFixed(0)} poin</b></span>
+          <span className="chip">CVaR-1% better by <b>+{(tailImprove * 100).toFixed(0)} pts</b></span>
         </div>
       </header>
 
       {/* ---------- PROBLEM ---------- */}
       <section className="section container" id="why">
-        <div className="eyebrow">Masalahnya</div>
-        <h2 className="title">Pemilik PLP itu “si rumah”.</h2>
+        <div className="eyebrow">The problem</div>
+        <h2 className="title">PLP holders are “the house”.</h2>
         <p className="lead">
-          Di DeepBook Predict, PLP mengambil sisi lawan tiap trade. Saat pasar tenang mereka panen premi —
-          tapi saat BTC bergerak ekstrem, payout binary memukul PLP keras. Ekor-kiri yang gemuk inilah yang
-          menahan LP serius masuk.
+          On DeepBook Predict, PLP takes the other side of every trade. When markets are calm they
+          collect premium — but when BTC gaps, binary payouts hit PLP hard. That fat left tail is what
+          keeps serious LPs out.
         </p>
         <div className="grid-3">
-          <div className="card feature"><div className="ico">📈</div><h3>Tenang = cuan</h3><p>Premi mengalir ke PLP saat tidak ada yang bergerak tajam. Yield-nya menarik.</p></div>
-          <div className="card feature"><div className="ico">💥</div><h3>Crash = derita</h3><p>Saat gap turun, trader binary menang besar dan PLP membayar — drawdown ekor brutal.</p></div>
-          <div className="card feature"><div className="ico">🚪</div><h3>LP serius menjauh</h3><p>“Apakah PLP aman?” Tanpa proteksi ekor, modal besar enggan masuk.</p></div>
+          <div className="card feature"><div className="ico">📈</div><h3>Calm = profit</h3><p>Premium flows to PLP when nothing moves sharply. The yield is genuinely attractive.</p></div>
+          <div className="card feature"><div className="ico">💥</div><h3>Crash = pain</h3><p>On a gap down, binary traders win big and PLP pays out — a brutal left-tail drawdown.</p></div>
+          <div className="card feature"><div className="ico">🚪</div><h3>Serious LPs stay out</h3><p>“Is PLP safe?” Without tail protection, large capital won’t come in.</p></div>
         </div>
       </section>
 
       {/* ---------- HOW IT WORKS ---------- */}
       <section className="section container" id="how">
-        <div className="eyebrow">Solusinya</div>
-        <h2 className="title">Dua kaki, satu token.</h2>
-        <p className="lead">Jaga tetap memanen yield PLP, tapi memangkas drawdown crash dengan membeli asuransi murah di protokol yang sama.</p>
+        <div className="eyebrow">The solution</div>
+        <h2 className="title">Two legs, one token.</h2>
+        <p className="lead">Jaga keeps the PLP yield but caps crash drawdown by buying cheap insurance on the very same protocol.</p>
         <div className="grid-2">
           <div className="card leg yield">
-            <span className="tag">● Kaki 1 — Yield</span>
+            <span className="tag">● Leg 1 — Yield</span>
             <h3>Supply PLP</h3>
-            <p>Setor dUSDC ke pool PLP Predict lewat <code>predict::supply</code> — sepenuhnya trustless di dalam Vault.</p>
+            <p>Supply dUSDC to Predict’s PLP pool via <code>predict::supply</code> — fully trustless inside the Vault.</p>
             <ul>
-              <li>Untung saat: pasar tenang</li>
-              <li>Biaya saat: crash (PLP bayar payout)</li>
-              <li>Trustless, berbasis coin di dalam shared Vault</li>
+              <li>Profits when: markets are calm</li>
+              <li>Costs when: crash (PLP pays the payout)</li>
+              <li>Trustless, coin-based, inside the shared Vault</li>
             </ul>
           </div>
           <div className="card leg hedge">
-            <span className="tag">● Kaki 2 — Hedge</span>
-            <h3>Beli binary OTM-DOWN</h3>
-            <p>Tiap roll, sebagian kecil NAV menebus PLP → mendanai mint <code>predict::mint</code> sebagai asuransi crash.</p>
+            <span className="tag">● Leg 2 — Hedge</span>
+            <h3>Buy OTM-DOWN binaries</h3>
+            <p>Each roll, a small slice of NAV redeems PLP → funds a <code>predict::mint</code> as crash insurance.</p>
             <ul>
-              <li>Untung saat: BTC crash (justru saat PLP berdarah)</li>
-              <li>Biaya saat: tenang (premi tipis hangus)</li>
-              <li>Strike auto-melangkah ke level mintable terdalam</li>
+              <li>Profits when: BTC crashes (exactly when PLP bleeds)</li>
+              <li>Costs when: calm (a thin premium expires)</li>
+              <li>Strike auto-steps to the deepest mintable level</li>
             </ul>
           </div>
         </div>
         <div className="grid-3" style={{ marginTop: 18 }}>
-          <div className="card feature"><div className="ico">🪙</div><h3>jSHARE composable</h3><p>Posisi hedged dibungkus jadi satu <code>Coin&lt;SHARE&gt;</code> — bisa dipakai sebagai kolateral/LP.</p></div>
-          <div className="card feature"><div className="ico">🤖</div><h3>Keeper auto-roll</h3><p>Bot me-roll hedge tiap expiry & sinkron NAV. Restart-safe: posisi di-rediscover on-chain.</p></div>
-          <div className="card feature"><div className="ico">🔐</div><h3>Capability-scoped</h3><p>Mint owner-gated didelegasikan ke operator hanya untuk budget hedge — tak pernah principal.</p></div>
+          <div className="card feature"><div className="ico">🪙</div><h3>Composable jSHARE</h3><p>The hedged position is wrapped into one <code>Coin&lt;SHARE&gt;</code> — usable as collateral / LP.</p></div>
+          <div className="card feature"><div className="ico">🤖</div><h3>Keeper auto-roll</h3><p>A bot rolls the hedge each expiry and syncs NAV. Restart-safe: positions are rediscovered on-chain.</p></div>
+          <div className="card feature"><div className="ico">🔐</div><h3>Capability-scoped</h3><p>The owner-gated mint is delegated to an operator for the hedge budget only — never the principal.</p></div>
         </div>
       </section>
 
       {/* ---------- SIMULATION ---------- */}
       <section className="section container" id="sim">
-        <div className="eyebrow">Bukti</div>
-        <h2 className="title">Backtest 30.000 jalur Monte-Carlo.</h2>
-        <p className="lead">Distribusi imbal-hasil PLP mentah vs Jaga. Ekor kiri (crash) dipangkas tajam dengan melepas sedikit yield.</p>
+        <div className="eyebrow">The proof</div>
+        <h2 className="title">30,000-path Monte-Carlo backtest.</h2>
+        <p className="lead">Return distribution of raw PLP vs Jaga. The left (crash) tail is sharply cut for a small amount of yield given up.</p>
         <div className="statrow" style={{ marginBottom: 18 }}>
-          <div className="statbox"><div className="k">CVaR-1% · PLP mentah</div><div className="v red">{pct(simStats.plp.cvar1)}</div></div>
+          <div className="statbox"><div className="k">CVaR-1% · raw PLP</div><div className="v red">{pct(simStats.plp.cvar1)}</div></div>
           <div className="statbox"><div className="k">CVaR-1% · Jaga</div><div className="v blue">{pct(simStats.jaga.cvar1)}</div></div>
-          <div className="statbox"><div className="k">Perbaikan ekor</div><div className="v green">+{(tailImprove * 100).toFixed(0)} poin</div></div>
-          <div className="statbox"><div className="k">Yield dilepas</div><div className="v">{pct(yieldGiveup)}</div></div>
+          <div className="statbox"><div className="k">Tail improvement</div><div className="v green">+{(tailImprove * 100).toFixed(0)} pts</div></div>
+          <div className="statbox"><div className="k">Yield given up</div><div className="v">{pct(yieldGiveup)}</div></div>
         </div>
         <div className="card">
           <div style={{ width: '100%', height: 320 }}>
@@ -145,40 +147,40 @@ export default function Page() {
               <AreaChart data={simDist as any} margin={{ top: 8, right: 12, left: -10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="gPlp" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#e5484d" stopOpacity={0.35} /><stop offset="100%" stopColor="#e5484d" stopOpacity={0.02} /></linearGradient>
-                  <linearGradient id="gJaga" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#2f6bf7" stopOpacity={0.35} /><stop offset="100%" stopColor="#2f6bf7" stopOpacity={0.02} /></linearGradient>
+                  <linearGradient id="gJaga" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={TEAL} stopOpacity={0.38} /><stop offset="100%" stopColor={TEAL} stopOpacity={0.02} /></linearGradient>
                 </defs>
                 <XAxis dataKey="ret" tick={{ fill: '#64748b', fontSize: 11 }} tickFormatter={(x) => (x * 100).toFixed(0) + '%'} axisLine={{ stroke: '#e3e8f0' }} tickLine={false} />
                 <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ background: '#fff', border: '1px solid #e3e8f0', borderRadius: 10, boxShadow: '0 8px 24px rgba(16,32,64,.1)' }} labelFormatter={(x) => 'return ' + (Number(x) * 100).toFixed(1) + '%'} />
                 <Legend />
                 <ReferenceLine x={simStats.plp.cvar1} stroke="#e5484d" strokeDasharray="4 4" label={{ value: 'CVaR PLP', fill: '#e5484d', fontSize: 11, position: 'insideTopLeft' }} />
-                <ReferenceLine x={simStats.jaga.cvar1} stroke="#2f6bf7" strokeDasharray="4 4" label={{ value: 'CVaR Jaga', fill: '#2f6bf7', fontSize: 11, position: 'insideTopRight' }} />
-                <Area type="monotone" dataKey="PLP" name="PLP mentah" stroke="#e5484d" fill="url(#gPlp)" strokeWidth={2} dot={false} />
-                <Area type="monotone" dataKey="Jaga" name="Jaga (hedged)" stroke="#2f6bf7" fill="url(#gJaga)" strokeWidth={2.2} dot={false} />
+                <ReferenceLine x={simStats.jaga.cvar1} stroke={TEAL} strokeDasharray="4 4" label={{ value: 'CVaR Jaga', fill: TEAL, fontSize: 11, position: 'insideTopRight' }} />
+                <Area type="monotone" dataKey="PLP" name="Raw PLP" stroke="#e5484d" fill="url(#gPlp)" strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="Jaga" name="Jaga (hedged)" stroke={TEAL} fill="url(#gJaga)" strokeWidth={2.2} dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <p className="hint" style={{ marginTop: 8 }}>Garis putus = CVaR-1% (rata-rata 1% kasus terburuk). Jaga menggeser ekor kiri ke kanan secara signifikan.</p>
+          <p className="hint" style={{ marginTop: 8 }}>Dashed lines = CVaR-1% (mean of the worst 1% of cases). Jaga shifts the left tail decisively to the right.</p>
         </div>
       </section>
 
       {/* ---------- APP / DASHBOARD ---------- */}
       <section className="section container" id="app">
-        <div className="eyebrow">Live di testnet</div>
-        <h2 className="title">Vault.</h2>
-        <p className="lead">Hubungkan wallet Sui (testnet), setor dUSDC, terima jSHARE. Keeper menangani hedge-nya.</p>
+        <div className="eyebrow">Live on testnet</div>
+        <h2 className="title">The Vault.</h2>
+        <p className="lead">Connect a Sui wallet (testnet), deposit dUSDC, receive jSHARE. The keeper handles the hedge.</p>
 
-        {!deployed && <div className="banner warn">⚠️ Vault belum di-deploy. Set <code>NEXT_PUBLIC_JAGA_*</code> di <code>.env.local</code>.</div>}
+        {!deployed && <div className="banner warn">⚠️ Vault not deployed. Set <code>NEXT_PUBLIC_JAGA_*</code> in <code>.env.local</code>.</div>}
 
         <div className="card">
           <div className="panel-head">
-            <div style={{ fontWeight: 700, fontSize: 17 }}>State Vault</div>
+            <div style={{ fontWeight: 700, fontSize: 17 }}>Vault state</div>
             <ConnectButton connectText="Connect Wallet" />
           </div>
           <div className="statrow">
             <div className="statbox"><div className="k">NAV (dUSDC)</div><div className="v">{v ? v.nav.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '—'}</div></div>
-            <div className="statbox"><div className="k">Harga / jSHARE</div><div className="v">{v ? v.navPerShare.toFixed(4) : '—'}</div></div>
-            <div className="statbox"><div className="k">Harga PLP</div><div className="v">{v ? v.plpPx.toFixed(4) : '—'}</div></div>
+            <div className="statbox"><div className="k">Price / jSHARE</div><div className="v">{v ? v.navPerShare.toFixed(4) : '—'}</div></div>
+            <div className="statbox"><div className="k">PLP price</div><div className="v">{v ? v.plpPx.toFixed(4) : '—'}</div></div>
             <div className="statbox"><div className="k">Status</div><div className="v" style={{ color: v && !v.paused ? 'var(--green)' : undefined }}>{v ? (v.paused ? 'Paused' : 'Active') : '—'}</div></div>
           </div>
 
@@ -190,19 +192,32 @@ export default function Page() {
             <div>
               <div style={{ fontWeight: 700, marginBottom: 10 }}>Deposit</div>
               <div className="field">
-                <input className="amt" placeholder="jumlah dUSDC" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                <input className="amt" placeholder="dUSDC amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
                 <button className="btn btn-primary" disabled={!acct || isPending || !deployed || !firstDusdc} onClick={deposit}>Deposit dUSDC</button>
               </div>
-              <p className="hint" style={{ marginTop: 8 }}>{acct ? (firstDusdc ? `Saldo dUSDC: ${(Number(firstDusdc.balance) / 1e6).toFixed(2)}` : 'Tidak ada dUSDC — minta di tally.so/r/Xx102L') : 'Hubungkan wallet dulu.'}</p>
+              <p className="hint" style={{ marginTop: 8 }}>{acct ? (firstDusdc ? `dUSDC balance: ${(Number(firstDusdc.balance) / 1e6).toFixed(2)}` : 'No dUSDC — request at tally.so/r/Xx102L') : 'Connect a wallet first.'}</p>
             </div>
             <div>
               <div style={{ fontWeight: 700, marginBottom: 10 }}>Withdraw</div>
               <div className="field">
-                <button className="btn btn-ghost" disabled={!acct || isPending || !deployed || !firstShare} onClick={withdraw}>Withdraw semua jSHARE</button>
+                <button className="btn btn-ghost" disabled={!acct || isPending || !deployed || !firstShare} onClick={withdraw}>Withdraw all jSHARE</button>
               </div>
-              <p className="hint" style={{ marginTop: 8 }}>{firstShare ? `Saldo jSHARE: ${(Number(firstShare.balance) / 1e6).toFixed(2)}` : 'Belum ada jSHARE.'}</p>
+              <p className="hint" style={{ marginTop: 8 }}>{firstShare ? `jSHARE balance: ${(Number(firstShare.balance) / 1e6).toFixed(2)}` : 'No jSHARE yet.'}</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ---------- ROADMAP ---------- */}
+      <section className="section container" id="roadmap">
+        <div className="eyebrow">What’s next</div>
+        <h2 className="title">Roadmap.</h2>
+        <p className="lead">Mainnet-ready architecture today; here’s where Jaga goes from here.</p>
+        <div className="grid-2">
+          <div className="card feature"><div className="ico">✅</div><h3>Now — Live on testnet</h3><p>Full deposit → PLP → hedge → settle loop running against the real Predict contracts, with a 30k-path backtest and a keeper.</p></div>
+          <div className="card feature"><div className="ico">🎚️</div><h3>Next — Dynamic hedge ratio</h3><p>Size the hedge from realized vol and the live SVI surface instead of a static bps, tightening the cost/protection trade-off.</p></div>
+          <div className="card feature"><div className="ico">🌐</div><h3>Then — Multi-asset</h3><p>Extend beyond BTC to every oracle Predict lists, with per-market hedge policies.</p></div>
+          <div className="card feature"><div className="ico">🧩</div><h3>Later — jSHARE as collateral</h3><p>Make the hedged share token a first-class building block across Sui DeFi — lending, LP, structured products.</p></div>
         </div>
       </section>
 
@@ -217,7 +232,7 @@ export default function Page() {
           <div style={{ display: 'flex', gap: 22 }}>
             <a href={REPO} target="_blank" rel="noreferrer">GitHub</a>
             <a href={`${REPO}/blob/main/docs/PROOF.md`} target="_blank" rel="noreferrer">Testnet proof</a>
-            <a href="#how">Cara kerja</a>
+            <a href="#how">How it works</a>
           </div>
         </div>
       </footer>

@@ -1,8 +1,8 @@
 <svg width="960" height="320" viewBox="0 0 960 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Jaga">
   <defs>
     <linearGradient id="shieldW" x1="160" y1="56" x2="160" y2="264" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#2f81f7"/>
-      <stop offset="1" stop-color="#1f5fc0"/>
+      <stop offset="0" stop-color="#14b8a6"/>
+      <stop offset="1" stop-color="#0a7d74"/>
     </linearGradient>
     <clipPath id="shieldClipW">
       <path d="M160 60 L244 91 V166 C244 213 207 244 160 262 C113 244 76 213 76 166 V91 Z"/>

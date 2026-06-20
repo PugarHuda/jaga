@@ -5,8 +5,8 @@
       <stop offset="1" stop-color="#0a0d12"/>
     </linearGradient>
     <linearGradient id="shield" x1="256" y1="96" x2="256" y2="432" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#2f81f7"/>
-      <stop offset="1" stop-color="#1f5fc0"/>
+      <stop offset="0" stop-color="#14b8a6"/>
+      <stop offset="1" stop-color="#0a7d74"/>
     </linearGradient>
     <clipPath id="shieldClip">
       <path d="M256 100 L392 150 V272 C392 348 332 398 256 428 C180 398 120 348 120 272 V150 Z"/>
