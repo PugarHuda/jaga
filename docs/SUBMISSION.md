@@ -1,7 +1,7 @@
 # Jaga — Submission Pack (Sui Overflow 2026 · DeepBook Predict)
 
-Checklist deadline: **21 Juni 2026, 6:00 PM PT**. Submit di DeepSurge. Repo public, video ≤5 menit
-(YouTube), tim ≥2, ≥1 KYC, profil mahasiswa untuk University Award.
+Checklist deadline: **June 21, 2026, 6:00 PM PT**. Submit on DeepSurge. Public repo, video ≤5 min
+(YouTube), team ≥2, ≥1 KYC, student profiles for the University Award.
 
 ---
 
@@ -10,7 +10,7 @@ Checklist deadline: **21 Juni 2026, 6:00 PM PT**. Submit di DeepSurge. Repo publ
 > An automated vault on DeepBook Predict that earns PLP yield and buys OTM binary "puts" as a
 > crash hedge, capping left-tail drawdown. Live on testnet.
 
-## 2. Deskripsi (DeepSurge — ~150 kata)
+## 2. Description (DeepSurge — ~150 words)
 DeepBook Predict's PLP holders are effectively "the house": they earn premium when markets are calm
 but absorb brutal payouts when BTC moves violently — a fat left tail that scares serious LPs away.
 

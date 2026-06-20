@@ -1,6 +1,6 @@
-# Jaga — Arsitektur Teknis
+# Jaga — Technical Architecture
 
-## 1. Komponen
+## 1. Components
 
 ```
 ┌─────────────┐   deposit dUSDC    ┌──────────────────────────────┐
@@ -10,7 +10,7 @@
        ▲                           │  - PredictManager (wrapped)  │
        │ APY/NAV, drawdown         │  - hedge positions (dyn flds)│
        │                           └───────────┬──────────────────┘
-┌──────┴───────┐  events / server   PTB atomik │ supply + mint + redeem
+┌──────┴───────┐  events / server   atomic PTB │ supply + mint + redeem
 │   Keeper     │ ◄───────────────┐             ▼
 │ (auto-roll)  │                 │   ┌──────────────────────────┐
 └──────┬───────┘                 └───┤   DeepBook Predict        │
@@ -21,18 +21,18 @@
                                       └──────────────────────────┘
 ```
 
-## 2. Objek & state on-chain
+## 2. On-chain objects & state
 
-- **`Vault`** (shared): `idle: Balance<DUSDC>`, `cap: TreasuryCap<SHARE>`, `manager: PredictManager` (atau referensi + TradeProof), `total_shares: u64`, `hedge_ratio_bps: u64`, `strike_policy: u8`, `current_expiry: u64`, dan **dynamic fields** `expiry -> HedgeLot` untuk lacak binary per-siklus.
-- **`AdminCap`** (owned): set parameter (hedge ratio, strike policy, pause), buat vault.
-- **`KeeperCap`** (owned): hanya boleh memanggil `roll()` (settle + re-deploy). Bisa didelegasikan ke bot tanpa memberi kuasa admin.
-- **`SHARE`** = OTW coin (`jaga::share::SHARE`), share token `Coin<SHARE>` (punya `store` → composable).
+- **`Vault`** (shared): `idle: Balance<DUSDC>`, `cap: TreasuryCap<SHARE>`, `manager: PredictManager` (or a reference + TradeProof), `total_shares: u64`, `hedge_ratio_bps: u64`, `strike_policy: u8`, `current_expiry: u64`, and **dynamic fields** `expiry -> HedgeLot` to track the binary per cycle.
+- **`AdminCap`** (owned): set parameters (hedge ratio, strike policy, pause), create the vault.
+- **`KeeperCap`** (owned): may only call `roll()` (settle + re-deploy). Can be delegated to a bot without granting admin authority.
+- **`SHARE`** = OTW coin (`jaga::share::SHARE`), share token `Coin<SHARE>` (has `store` → composable).
 
-## 3. NAV & akunting share (ERC4626-style)
+## 3. NAV & share accounting (ERC4626-style)
 
 ```
-NAV = value(PLP held)            // dari Predict (redeemable value / mark)
-    + value(hedge binaries)      // dari OracleSVI mark, per posisi
+NAV = value(PLP held)            // from Predict (redeemable value / mark)
+    + value(hedge binaries)      // from OracleSVI mark, per position
     + idle dUSDC
 
 deposit(assets):
@@ -43,54 +43,54 @@ deposit(assets):
 
 withdraw(shares):
     assets = mul_div(shares, NAV, total_shares)
-    burn shares; return proportional dUSDC (+ unwind pro-rata jika perlu)
+    burn shares; return proportional dUSDC (+ unwind pro-rata if needed)
 ```
 
-Valuasi PLP & binary memakai view function Predict / mark dari `OracleSVI`. Bagian yang butuh data off-chain (harga mark presisi) di-feed lewat keeper saat `roll()`; deposit/withdraw intra-epoch memakai NAV terakhir yang ter-snapshot agar aman dari manipulasi.
+PLP & binary valuation uses Predict view functions / the `OracleSVI` mark. The parts that need off-chain data (precise mark price) are fed via the keeper during `roll()`; intra-epoch deposit/withdraw uses the last snapshotted NAV to stay safe from manipulation.
 
-## 4. Flow utama
+## 4. Main flows
 
-### deposit (PTB user — kaki YIELD)
-1. user kirim `Coin<DUSDC>`
-2. `predict::supply<DUSDC>` → `Coin<PLP>` di-join ke `vault.plp` (kaki yield, trustless)
-3. `shares = mul_div(assets, total_supply, nav)`, `share::mint` → `Coin<SHARE>` ke user
+### deposit (user PTB — YIELD leg)
+1. user sends `Coin<DUSDC>`
+2. `predict::supply<DUSDC>` → `Coin<PLP>` joined into `vault.plp` (yield leg, trustless)
+3. `shares = mul_div(assets, total_supply, nav)`, `share::mint` → `Coin<SHARE>` to user
 4. `nav += assets`; emit `Deposited`
 
-> Catatan kendala (verified dari source): `predict::mint` **owner-gated** (`sender == manager.owner()`) & **tanpa Coin** (dana lewat `PredictManager`). Objek Vault tak bisa jadi `sender`, jadi **hedge TIDAK di-mint saat deposit user**. Hedge ditambahkan saat **roll** oleh operator (lihat di bawah).
+> Constraint note (verified from source): `predict::mint` is **owner-gated** (`sender == manager.owner()`) & **takes no Coin** (funds flow through `PredictManager`). The Vault object cannot be the `sender`, so the **hedge is NOT minted during the user deposit**. The hedge is added during **roll** by the operator (see below).
 
-### roll (keeper, tiap expiry)
-1. expiry settle → `predict::redeem` posisi yang sudah settled (PLP & binary)
-2. hitung NAV baru, snapshot
-3. tentukan strike hedge baru dari `OracleSVI` (mis. 1σ)
-4. re-`supply` + re-`mint` untuk expiry berikutnya
+### roll (keeper, every expiry)
+1. expiry settles → `predict::redeem` the already-settled positions (PLP & binary)
+2. compute new NAV, snapshot
+3. determine the new hedge strike from `OracleSVI` (e.g. 1σ)
+4. re-`supply` + re-`mint` for the next expiry
 5. emit `Rolled`
 
 ### withdraw
-- burn `Coin<SHARE>`, kembalikan dUSDC pro-rata (unwind sebagian PLP/hedge bila idle kurang). Withdrawal queue untuk jumlah besar.
+- burn `Coin<SHARE>`, return dUSDC pro-rata (unwind part of the PLP/hedge if idle is insufficient). Withdrawal queue for large amounts.
 
-## 5. Integrasi DeepBook Predict (titik kontrak)
+## 5. DeepBook Predict integration (contract points)
 
-| Panggilan | Tujuan | Catatan |
+| Call | Purpose | Note |
 |---|---|---|
-| `predict::supply` | mint PLP (yield leg) | quote = dUSDC (bukan USDC testnet) |
-| `predict::mint` | beli binary OTM (hedge leg) | key: (oracle_id, expiry, strike, is_up) |
-| `predict::redeem` / `redeem_permissionless` | settle + auto-roll | keeper pakai versi permissionless |
-| `OracleSVI` getter + `OracleSVIUpdated` | strike & valuasi | sub-jam rolling expiry |
-| `predict-server.testnet.mystenlabs.com` | indeks UI/keeper | jangan raw-scan chain |
+| `predict::supply` | mint PLP (yield leg) | quote = dUSDC (not testnet USDC) |
+| `predict::mint` | buy OTM binary (hedge leg) | key: (oracle_id, expiry, strike, is_up) |
+| `predict::redeem` / `redeem_permissionless` | settle + auto-roll | keeper uses the permissionless version |
+| `OracleSVI` getter + `OracleSVIUpdated` | strike & valuation | sub-hour rolling expiry |
+| `predict-server.testnet.mystenlabs.com` | UI/keeper index | don't raw-scan the chain |
 
-> ✅ Signature persis sudah ditarik dari branch **`predict-testnet-4-16`** (package `deepbook_predict` @ `packages/predict`, quote `dusdc::dusdc::DUSDC` 6 desimal, PLP `deepbook_predict::plp::PLP`, `market_key::new/up/down`, manager via `predict::create_manager` → shared, `owner = sender`). ID deploy testnet provisional → konfirmasi sebelum publish.
+> ✅ Exact signatures already pulled from branch **`predict-testnet-4-16`** (package `deepbook_predict` @ `packages/predict`, quote `dusdc::dusdc::DUSDC` 6 decimals, PLP `deepbook_predict::plp::PLP`, `market_key::new/up/down`, manager via `predict::create_manager` → shared, `owner = sender`). Testnet deploy IDs provisional → confirm before publishing.
 
-## 5b. Model custody & batas kepercayaan (PENTING)
+## 5b. Custody model & trust boundary (IMPORTANT)
 
-`predict::mint`/`redeem`/`predict_manager::withdraw` **owner-gated oleh `ctx.sender()`** — tidak ada jalur `&Cap`. Implikasi:
+`predict::mint`/`redeem`/`predict_manager::withdraw` are **owner-gated by `ctx.sender()`** — there is no `&Cap` path. Implications:
 
-- **Kaki YIELD (PLP):** `supply`/`withdraw` berbasis coin & tak owner-gated → **sepenuhnya di dalam Vault, trustless**. Principal user aman di objek Vault.
-- **Kaki HEDGE (binary):** harus dieksekusi **operator address** pemilik `PredictManager`. Vault mendanai manager (`predict_manager::deposit`, public) hanya sebesar **budget hedge** (`hedge_ratio_bps` dari NAV). Operator **semi-trusted** sebatas budget hedge itu — **bukan** principal.
-- Mitigasi & roadmap: budget hedge kecil (mis. 25% yield), audit log via event, dan jalur trustless penuh menunggu Predict menambah API cap-gated (catat sebagai future work di pitch — juri DeepBook tahu batasan ini).
+- **YIELD leg (PLP):** `supply`/`withdraw` are coin-based & not owner-gated → **fully inside the Vault, trustless**. User principal is safe in the Vault object.
+- **HEDGE leg (binary):** must be executed by the **operator address** that owns the `PredictManager`. The Vault funds the manager (`predict_manager::deposit`, public) only up to the **hedge budget** (`hedge_ratio_bps` of NAV). The operator is **semi-trusted** only up to that hedge budget — **not** the principal.
+- Mitigation & roadmap: small hedge budget (e.g. 25% of yield), audit log via events, and a fully trustless path pending Predict adding a cap-gated API (noted as future work in the pitch — DeepBook judges are aware of this limitation).
 
-## 6. Primitif Sui yang dipakai
-Shared object + capability pattern · PTB atomik (deposit menggabung supply+mint+share) · `sui::coin` + OTW (share composable) · dynamic fields (hedge per-expiry) · `sui::event` · `Clock 0x6` · OZ `mul_div`/`checked_*`. Opsional cross-track: **Walrus** menyimpan laporan backtest/risk sebagai blob terverifikasi.
+## 6. Sui primitives used
+Shared object + capability pattern · atomic PTB (deposit combines supply+mint+share) · `sui::coin` + OTW (composable share) · dynamic fields (hedge per-expiry) · `sui::event` · `Clock 0x6` · OZ `mul_div`/`checked_*`. Optional cross-track: **Walrus** stores the backtest/risk report as a verified blob.
 
-## 7. Bukti kredibilitas (wajib track)
-`sim/` menjalankan Monte-Carlo BTC path → bandingkan distribusi PnL **PLP mentah vs Jaga**: tunjukkan **drawdown ekor turun signifikan** dengan ongkos yield kecil. Output grafik + tabel masuk ke pitch & (opsional) di-anchor ke Walrus.
+## 7. Credibility proof (mandatory track)
+`sim/` runs a Monte-Carlo BTC path → compares the PnL distribution of **raw PLP vs Jaga**: shows the **tail drawdown drops significantly** at a small yield cost. Charts + table output go into the pitch & (optionally) get anchored to Walrus.
 ```
