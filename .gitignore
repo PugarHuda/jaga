@@ -11,3 +11,8 @@ contracts/*.out.json
 .claude/
 *.key
 *.mnemonic
+
+# Video recorder: keep the script, ignore deps + rendered output (goes to YouTube)
+video/node_modules/
+video/out/
+video/package-lock.json
